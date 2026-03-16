@@ -1,0 +1,48 @@
+{
+  "name": "git-buddy",
+  "version": "1.0.0",
+  "description": "A super simple Git GUI for beginners",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package:win": "electron-vite build && electron-builder --win --x64",
+    "package:mac": "electron-vite build && electron-builder --mac --arm64",
+    "package:all": "electron-vite build && electron-builder --win --x64 --mac --arm64"
+  },
+  "dependencies": {
+    "pinia": "^2.3.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.0",
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.0",
+    "electron-vite": "^3.0.0",
+    "typescript": "^5.7.0",
+    "vue-tsc": "^2.2.0"
+  },
+  "build": {
+    "appId": "com.gitbuddy.app",
+    "productName": "Git Buddy",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "resources/icon.png"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["arm64"] }],
+      "icon": "resources/icon.png",
+      "category": "public.app-category.developer-tools",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false
+    }
+  }
+}
