@@ -63,10 +63,11 @@ onMounted(async () => {
 
 <style scoped>
 .app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  overflow: hidden;
 }
 
 .app-header {
@@ -99,7 +100,8 @@ onMounted(async () => {
 .app-main {
   flex: 1;
   padding: 24px;
-  overflow: auto;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .no-git {
@@ -131,11 +133,21 @@ onMounted(async () => {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.workspace-left,
+.workspace-left {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .workspace-right {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 </style>

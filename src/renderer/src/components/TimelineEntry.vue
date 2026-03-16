@@ -113,7 +113,7 @@ function handleGoBack(): void {
 
 .entry-latest .entry-content {
   border: 2px solid var(--color-primary);
-  background: #FFF8F0;
+  background: var(--color-surface-highlight);
 }
 
 .entry-header {

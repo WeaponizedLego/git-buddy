@@ -1,19 +1,22 @@
 :root {
-  --color-bg: #FFF8F0;
-  --color-surface: #FFFFFF;
+  --color-bg: #121212;
+  --color-surface: #1E1E1E;
   --color-primary: #FFB347;
-  --color-primary-hover: #FFA020;
-  --color-accent: #87CEEB;
-  --color-success: #98D8A0;
-  --color-danger: #FFB3B3;
-  --color-text: #4A4A4A;
-  --color-text-muted: #9A9A9A;
-  --color-border: #F0E8E0;
+  --color-primary-hover: #FFC66D;
+  --color-accent: #5DADE2;
+  --color-success: #66BB6A;
+  --color-success-bg: #1B3A1B;
+  --color-danger: #EF5350;
+  --color-danger-bg: #3A1B1B;
+  --color-text: #E8E8E8;
+  --color-text-muted: #888888;
+  --color-border: #333333;
+  --color-surface-highlight: #2A2318;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -94,16 +97,16 @@ a:hover {
 
 .btn-secondary:hover {
   border-color: var(--color-primary);
-  background: #FFF5E6;
+  background: var(--color-surface-highlight);
 }
 
 .btn-danger {
   background: var(--color-danger);
-  color: #8B3A3A;
+  color: #FFFFFF;
 }
 
 .btn-danger:hover {
-  background: #FF9999;
+  background: #E53935;
 }
 
 .card {
@@ -119,14 +122,14 @@ a:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: #444444;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+  background: #666666;
 }

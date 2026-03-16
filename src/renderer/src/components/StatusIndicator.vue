@@ -26,14 +26,14 @@ const store = useProjectStore()
   border-radius: var(--radius-lg);
   font-size: 13px;
   font-weight: 600;
-  background: #E8F5E9;
-  color: #4A8C5C;
+  background: var(--color-success-bg);
+  color: var(--color-success);
   -webkit-app-region: no-drag;
 }
 
 .has-changes {
-  background: #FFF3E0;
-  color: #B87333;
+  background: var(--color-surface-highlight);
+  color: var(--color-primary);
 }
 
 .status-dot {
@@ -43,7 +43,7 @@ const store = useProjectStore()
 }
 
 .dot-saved {
-  background: #4CAF50;
+  background: var(--color-success);
 }
 
 .dot-unsaved {

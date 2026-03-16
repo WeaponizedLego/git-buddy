@@ -167,10 +167,10 @@ async function save(): Promise<void> {
 
 .success-msg {
   text-align: center;
-  color: #4A8C5C;
+  color: var(--color-success);
   font-weight: 600;
   padding: 12px;
-  background: #E8F5E9;
+  background: var(--color-success-bg);
   border-radius: var(--radius-sm);
   margin-top: 12px;
 }
@@ -251,13 +251,13 @@ async function save(): Promise<void> {
 }
 
 .badge-online {
-  background: #E8F5E9;
-  color: #4A8C5C;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .badge-local {
-  background: #FFF3E0;
-  color: #B87333;
+  background: var(--color-surface-highlight);
+  color: var(--color-primary);
 }
 
 .btn-sm {
