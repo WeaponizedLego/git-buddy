@@ -4,6 +4,8 @@ A super simple Git GUI for beginners. Only two actions: **Save a Snapshot** and 
 
 No branches, no merge conflicts, no terminal commands. Just save your work and go back if you need to.
 
+![Git Buddy screenshot](docs/screenshot.png)
+
 ## Features
 
 - **Save a Snapshot** - Write a short note, click save. Your work is backed up.

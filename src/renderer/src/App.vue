@@ -15,6 +15,10 @@ onMounted(async () => {
   const result = await window.gitBuddy.checkGitInstalled()
   gitInstalled.value = result.installed
   gitVersion.value = result.version ?? ''
+
+  if (result.installed) {
+    await store.loadLastProject()
+  }
 })
 </script>
 

@@ -39,7 +39,13 @@ const api = {
     ipcRenderer.invoke('git:check-installed'),
 
   getRemoteUrl: (path: string): Promise<string | null> =>
-    ipcRenderer.invoke('git:remote-url', path)
+    ipcRenderer.invoke('git:remote-url', path),
+
+  getLastProject: (): Promise<string | null> =>
+    ipcRenderer.invoke('settings:get-last-project'),
+
+  saveLastProject: (path: string | null): Promise<void> =>
+    ipcRenderer.invoke('settings:save-last-project', path)
 }
 
 contextBridge.exposeInMainWorld('gitBuddy', api)

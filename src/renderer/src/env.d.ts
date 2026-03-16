@@ -29,6 +29,8 @@ interface GitBuddyApi {
   goBackTo(path: string, targetSha: string): Promise<void>
   checkGitInstalled(): Promise<{ installed: boolean; version?: string }>
   getRemoteUrl(path: string): Promise<string | null>
+  getLastProject(): Promise<string | null>
+  saveLastProject(path: string | null): Promise<void>
 }
 
 interface Window {

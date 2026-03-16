@@ -10,6 +10,7 @@ import {
   goBackTo
 } from './git/commands'
 import { toFriendlyError, AppError } from './utils/errors'
+import { getLastProjectPath, saveLastProjectPath } from './settings'
 
 function wrapHandler<T>(
   fn: (...args: unknown[]) => Promise<T>
@@ -77,4 +78,12 @@ export function registerIpcHandlers(): void {
     }
     await goBackTo(path, targetSha)
   }))
+
+  ipcMain.handle('settings:get-last-project', () => {
+    return getLastProjectPath()
+  })
+
+  ipcMain.handle('settings:save-last-project', (_event, path: string | null) => {
+    saveLastProjectPath(path)
+  })
 }

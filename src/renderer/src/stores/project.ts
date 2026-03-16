@@ -30,6 +30,7 @@ export const useProjectStore = defineStore('project', () => {
     if (!path) return
 
     projectPath.value = path
+    await window.gitBuddy.saveLastProject(path)
     const repoCheck = await window.gitBuddy.checkRepo(path)
     isRepo.value = repoCheck
 
@@ -117,6 +118,22 @@ export const useProjectStore = defineStore('project', () => {
     error.value = null
   }
 
+  async function loadLastProject(): Promise<void> {
+    try {
+      const lastPath = await window.gitBuddy.getLastProject()
+      if (!lastPath) return
+
+      const repoCheck = await window.gitBuddy.checkRepo(lastPath)
+      if (!repoCheck) return
+
+      projectPath.value = lastPath
+      isRepo.value = true
+      await refresh()
+    } catch {
+      // Silently fail — the folder may have been deleted or moved
+    }
+  }
+
   function closeProject(): void {
     projectPath.value = null
     isRepo.value = false
@@ -124,6 +141,7 @@ export const useProjectStore = defineStore('project', () => {
     status.value = { modifiedCount: 0, files: [] }
     commits.value = []
     error.value = null
+    window.gitBuddy.saveLastProject(null)
   }
 
   return {
@@ -137,6 +155,7 @@ export const useProjectStore = defineStore('project', () => {
     hasChanges,
     selectFolder,
     initializeRepo,
+    loadLastProject,
     refresh,
     saveSnapshot,
     goBackTo,
