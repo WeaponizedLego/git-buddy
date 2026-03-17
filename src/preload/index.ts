@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+export interface UpdateInfo {
+  version: string
+  releaseUrl: string
+}
+
 export interface CommitInfo {
   sha: string
   shortSha: string
@@ -45,7 +50,16 @@ const api = {
     ipcRenderer.invoke('settings:get-last-project'),
 
   saveLastProject: (path: string | null): Promise<void> =>
-    ipcRenderer.invoke('settings:save-last-project', path)
+    ipcRenderer.invoke('settings:save-last-project', path),
+
+  checkForUpdate: (): Promise<UpdateInfo | null> =>
+    ipcRenderer.invoke('app:check-update'),
+
+  snoozeUpdate: (version: string): Promise<void> =>
+    ipcRenderer.invoke('app:snooze-update', version),
+
+  openRelease: (url: string): Promise<void> =>
+    ipcRenderer.invoke('app:open-release', url)
 }
 
 contextBridge.exposeInMainWorld('gitBuddy', api)
