@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "A super simple Git GUI for beginners",
   "main": "./out/main/index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
