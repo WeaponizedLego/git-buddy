@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.detect.outputs.is_release }}
+      version: ${{ steps.detect.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect release merge
+        id: detect
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%s)
+          echo "Commit message: $COMMIT_MSG"
+
+          if [[ "$COMMIT_MSG" =~ release/([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            echo "Detected release version: $VERSION"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Not a release merge, skipping"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-mac:
+    needs: check-release
+    if: needs.check-release.outputs.is_release == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Electron app (macOS arm64)
+        run: npx electron-vite build && npx electron-builder --mac --arm64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Mac artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-build
+          path: release/*.dmg
+          if-no-files-found: error
+
+  build-windows:
+    needs: check-release
+    if: needs.check-release.outputs.is_release == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Electron app (Windows x64)
+        run: npx electron-vite build && npx electron-builder --win --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: release/*.exe
+          if-no-files-found: error
+
+  create-release:
+    needs: [check-release, build-mac, build-windows]
+    if: needs.check-release.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create tag and GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check-release.outputs.version }}
+          name: Git Buddy v${{ needs.check-release.outputs.version }}
+          generate_release_notes: true
+          files: |
+            artifacts/mac-build/*.dmg
+            artifacts/windows-build/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

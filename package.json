@@ -1,6 +1,6 @@
 {
   "name": "git-buddy",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A super simple Git GUI for beginners",
   "main": "./out/main/index.js",
   "scripts": {
