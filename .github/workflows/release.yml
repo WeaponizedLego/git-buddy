@@ -88,13 +88,40 @@ jobs:
         with:
           path: artifacts
 
+      - name: Write release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          ## Installation
+
+          ### macOS
+
+          1. Download the `.dmg` file below
+          2. Open it and drag **Git Buddy** into your Applications folder
+          3. Open Terminal and run:
+             ```
+             xattr -cr /Applications/Git\ Buddy.app
+             ```
+          4. Launch Git Buddy from your Applications folder
+
+          > **Why the Terminal step?** macOS blocks apps that aren't from the App Store until you explicitly trust them. This is normal for free, open-source tools — the command removes the quarantine flag. Code signing requires a paid yearly certificate; we'll add it once the app has enough users to justify the cost.
+
+          ### Windows
+
+          1. Download the `.exe` installer below
+          2. Run the installer
+          3. If Windows SmartScreen appears, click **More info** → **Run anyway**
+          4. Launch Git Buddy from the Start menu
+
+          > **Why the SmartScreen warning?** Windows warns about apps from unknown publishers. This is expected for open-source tools without a paid code signing certificate. We'll add signing once the app has enough users to justify the yearly cost.
+          EOF
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_info.outputs.tag }}
           name: Git Buddy ${{ steps.release_info.outputs.tag }}
           prerelease: ${{ steps.release_info.outputs.prerelease }}
-          generate_release_notes: true
+          body_path: release-notes.md
           files: |
             artifacts/mac-build/*.dmg
             artifacts/windows-build/*.exe
