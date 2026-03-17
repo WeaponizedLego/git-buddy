@@ -19,6 +19,11 @@ interface GitStatus {
   files: string[]
 }
 
+interface UpdateInfo {
+  version: string
+  releaseUrl: string
+}
+
 interface GitBuddyApi {
   selectFolder(): Promise<string | null>
   checkRepo(path: string): Promise<boolean>
@@ -31,6 +36,9 @@ interface GitBuddyApi {
   getRemoteUrl(path: string): Promise<string | null>
   getLastProject(): Promise<string | null>
   saveLastProject(path: string | null): Promise<void>
+  checkForUpdate(): Promise<UpdateInfo | null>
+  snoozeUpdate(version: string): Promise<void>
+  openRelease(url: string): Promise<void>
 }
 
 interface Window {
