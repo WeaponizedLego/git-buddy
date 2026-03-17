@@ -4,10 +4,14 @@ import { join, dirname } from 'path'
 
 interface Settings {
   lastProjectPath: string | null
+  lastUpdateCheck: number | null
+  snoozedVersion: string | null
 }
 
 const defaults: Settings = {
-  lastProjectPath: null
+  lastProjectPath: null,
+  lastUpdateCheck: null,
+  snoozedVersion: null
 }
 
 function getSettingsPath(): string {
@@ -37,5 +41,17 @@ export function getLastProjectPath(): string | null {
 export function saveLastProjectPath(path: string | null): void {
   const settings = getSettings()
   settings.lastProjectPath = path
+  saveSettings(settings)
+}
+
+export function getUpdateSettings(): { lastUpdateCheck: number | null; snoozedVersion: string | null } {
+  const s = getSettings()
+  return { lastUpdateCheck: s.lastUpdateCheck, snoozedVersion: s.snoozedVersion }
+}
+
+export function saveUpdateSettings(lastUpdateCheck: number | null, snoozedVersion: string | null): void {
+  const settings = getSettings()
+  settings.lastUpdateCheck = lastUpdateCheck
+  settings.snoozedVersion = snoozedVersion
   saveSettings(settings)
 }

@@ -6,10 +6,12 @@ import SnapshotPanel from './components/SnapshotPanel.vue'
 import Timeline from './components/Timeline.vue'
 import StatusIndicator from './components/StatusIndicator.vue'
 import ErrorToast from './components/ErrorToast.vue'
+import UpdateBanner from './components/UpdateBanner.vue'
 
 const store = useProjectStore()
 const gitInstalled = ref(true)
 const gitVersion = ref('')
+const updateInfo = ref<UpdateInfo | null>(null)
 
 onMounted(async () => {
   const result = await window.gitBuddy.checkGitInstalled()
@@ -19,7 +21,16 @@ onMounted(async () => {
   if (result.installed) {
     await store.loadLastProject()
   }
+
+  updateInfo.value = await window.gitBuddy.checkForUpdate()
 })
+
+async function handleSnooze(): Promise<void> {
+  if (updateInfo.value) {
+    await window.gitBuddy.snoozeUpdate(updateInfo.value.version)
+    updateInfo.value = null
+  }
+}
 </script>
 
 <template>
@@ -31,6 +42,13 @@ onMounted(async () => {
       </div>
       <StatusIndicator v-if="store.projectPath" />
     </header>
+
+    <UpdateBanner
+      v-if="updateInfo"
+      :version="updateInfo.version"
+      :release-url="updateInfo.releaseUrl"
+      @snooze="handleSnooze"
+    />
 
     <main class="app-main">
       <!-- Git not installed -->
