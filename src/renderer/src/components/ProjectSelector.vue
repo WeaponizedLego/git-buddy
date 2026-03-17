@@ -10,7 +10,26 @@ async function pickFolder(): Promise<void> {
 
 <template>
   <div class="project-selector">
-    <div class="hero">
+    <!-- Non-git folder selected: show init prompt in place -->
+    <div v-if="store.projectPath && !store.isRepo" class="hero">
+      <div class="hero-icon">🌱</div>
+      <h2>Ready to start tracking?</h2>
+      <p>
+        <strong>{{ store.projectPath }}</strong> isn't set up for saving snapshots yet.
+        I'll get everything ready so you can start saving your work!
+      </p>
+      <div class="init-actions">
+        <button class="btn btn-primary btn-large" @click="store.initializeRepo()">
+          Let's go!
+        </button>
+        <button class="btn btn-secondary" @click="store.closeProject()">
+          Pick a different folder
+        </button>
+      </div>
+    </div>
+
+    <!-- Default: welcome screen -->
+    <div v-else class="hero">
       <div class="hero-icon">🐣</div>
       <h2>Welcome to Git Buddy!</h2>
       <p>Pick a project folder to get started. I'll help you save and manage your work!</p>
@@ -18,24 +37,6 @@ async function pickFolder(): Promise<void> {
       <button class="btn btn-primary btn-large" @click="pickFolder">
         📁 Pick Your Project Folder
       </button>
-    </div>
-
-    <!-- Setup prompt if folder selected but not tracking yet -->
-    <div v-if="store.projectPath && !store.isRepo" class="init-prompt card">
-      <div class="init-icon">🌱</div>
-      <h3>Ready to start tracking?</h3>
-      <p>
-        <strong>{{ store.projectPath }}</strong> isn't set up for saving snapshots yet.
-        I'll get everything ready so you can start saving your work!
-      </p>
-      <div class="init-actions">
-        <button class="btn btn-primary" @click="store.initializeRepo()">
-          Let's go!
-        </button>
-        <button class="btn btn-secondary" @click="store.closeProject()">
-          Pick a different folder
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -87,34 +88,15 @@ async function pickFolder(): Promise<void> {
   margin-top: 8px;
 }
 
-.init-prompt {
-  text-align: center;
-  max-width: 480px;
-}
-
-.init-icon {
-  font-size: 48px;
-  margin-bottom: 8px;
-}
-
-.init-prompt h3 {
-  margin-bottom: 8px;
-}
-
-.init-prompt p {
-  color: var(--color-text-muted);
-  font-size: 14px;
-  margin-bottom: 16px;
-  word-break: break-all;
-}
-
-.init-prompt strong {
+.hero strong {
   color: var(--color-text);
+  word-break: break-all;
 }
 
 .init-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
+  margin-top: 8px;
 }
 </style>
