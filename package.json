@@ -1,6 +1,6 @@
 {
   "name": "git-buddy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A super simple Git GUI for beginners",
   "main": "./out/main/index.js",
   "engines": {
@@ -33,11 +33,25 @@
       "output": "release"
     },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "resources/icon.png"
     },
     "mac": {
-      "target": [{ "target": "dmg", "arch": ["arm64"] }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
       "icon": "resources/icon.png",
       "category": "public.app-category.developer-tools",
       "entitlements": "build/entitlements.mac.plist",
