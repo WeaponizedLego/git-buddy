@@ -123,12 +123,13 @@ export const useProjectStore = defineStore('project', () => {
       const lastPath = await window.gitBuddy.getLastProject()
       if (!lastPath) return
 
-      const repoCheck = await window.gitBuddy.checkRepo(lastPath)
-      if (!repoCheck) return
-
       projectPath.value = lastPath
-      isRepo.value = true
-      await refresh()
+      const repoCheck = await window.gitBuddy.checkRepo(lastPath)
+      isRepo.value = repoCheck
+
+      if (repoCheck) {
+        await refresh()
+      }
     } catch {
       // Silently fail — the folder may have been deleted or moved
     }

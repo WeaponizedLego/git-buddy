@@ -20,17 +20,17 @@ async function pickFolder(): Promise<void> {
       </button>
     </div>
 
-    <!-- Init prompt if folder selected but not a repo -->
+    <!-- Setup prompt if folder selected but not tracking yet -->
     <div v-if="store.projectPath && !store.isRepo" class="init-prompt card">
       <div class="init-icon">🌱</div>
-      <h3>Set up this folder?</h3>
+      <h3>Ready to start tracking?</h3>
       <p>
         <strong>{{ store.projectPath }}</strong> isn't set up for saving snapshots yet.
-        Want me to set it up?
+        I'll get everything ready so you can start saving your work!
       </p>
       <div class="init-actions">
         <button class="btn btn-primary" @click="store.initializeRepo()">
-          Yes, set it up!
+          Let's go!
         </button>
         <button class="btn btn-secondary" @click="store.closeProject()">
           Pick a different folder

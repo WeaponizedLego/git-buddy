@@ -47,8 +47,8 @@ onMounted(async () => {
         </a>
       </div>
 
-      <!-- No project selected -->
-      <ProjectSelector v-else-if="!store.projectPath" />
+      <!-- No project selected, or folder not yet set up -->
+      <ProjectSelector v-else-if="!store.projectPath || !store.isRepo" />
 
       <!-- Main workspace -->
       <div v-else class="workspace">
