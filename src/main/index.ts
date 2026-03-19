@@ -1,8 +1,9 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, nativeImage } from 'electron'
 import { join } from 'path'
 import { registerIpcHandlers } from './ipc-handlers'
 
 function createWindow(): void {
+  const icon = nativeImage.createFromPath(join(__dirname, '../../resources/icon.png'))
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
@@ -10,6 +11,7 @@ function createWindow(): void {
     minHeight: 500,
     show: false,
     title: 'Git Buddy',
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -36,6 +38,9 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(nativeImage.createFromPath(join(__dirname, '../../resources/icon.png')))
+  }
   registerIpcHandlers()
   createWindow()
 

@@ -37,7 +37,7 @@ async function handleSnooze(): Promise<void> {
   <div class="app">
     <header class="app-header">
       <div class="logo">
-        <span class="logo-icon">🐣</span>
+        <img src="./assets/logo.png" class="logo-icon" alt="Git Buddy" />
         <h1>Git Buddy</h1>
       </div>
       <StatusIndicator v-if="store.projectPath" />
@@ -109,7 +109,9 @@ async function handleSnooze(): Promise<void> {
 }
 
 .logo-icon {
-  font-size: 28px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
 }
 
 .logo h1 {
