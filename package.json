@@ -1,6 +1,6 @@
 {
   "name": "git-buddy",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A super simple Git GUI for beginners",
   "main": "./out/main/index.js",
   "engines": {
@@ -41,7 +41,7 @@
           ]
         }
       ],
-      "icon": "resources/icon.png"
+      "icon": "resources/icon_win.png"
     },
     "mac": {
       "target": [
