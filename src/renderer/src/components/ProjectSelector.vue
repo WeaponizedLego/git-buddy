@@ -30,7 +30,7 @@ async function pickFolder(): Promise<void> {
 
     <!-- Default: welcome screen -->
     <div v-else class="hero">
-      <div class="hero-icon">🐣</div>
+      <img src="../assets/logo.png" class="hero-icon" alt="Git Buddy" />
       <h2>Welcome to Git Buddy!</h2>
       <p>Pick a project folder to get started. I'll help you save and manage your work!</p>
 
@@ -61,7 +61,9 @@ async function pickFolder(): Promise<void> {
 }
 
 .hero-icon {
-  font-size: 72px;
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
   animation: bounce 2s ease-in-out infinite;
 }
 

@@ -55,7 +55,7 @@ async function save(): Promise<void> {
       <!-- Success feedback -->
       <transition name="fade">
         <div v-if="justSaved" class="success-msg">
-          Snapshot saved! Your work is safe. 🐣
+          Snapshot saved! Your work is safe. <img src="../assets/logo.png" class="logo-inline" alt="" />
         </div>
       </transition>
     </div>
@@ -263,5 +263,13 @@ async function save(): Promise<void> {
 .btn-sm {
   padding: 8px 16px;
   font-size: 13px;
+}
+
+.logo-inline {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 </style>

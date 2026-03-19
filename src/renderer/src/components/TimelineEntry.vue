@@ -30,7 +30,8 @@ function handleGoBack(): void {
 <template>
   <div class="entry" :class="{ 'entry-latest': isLatest }">
     <div class="entry-dot" :class="{ 'dot-latest': isLatest }">
-      {{ isLatest ? '🐣' : '📸' }}
+      <img v-if="isLatest" src="../assets/logo.png" class="dot-logo" alt="" />
+      <span v-else>📸</span>
     </div>
 
     <div class="entry-content card">
@@ -104,6 +105,12 @@ function handleGoBack(): void {
 .dot-latest {
   border-color: var(--color-primary);
   font-size: 18px;
+}
+
+.dot-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
 }
 
 .entry-content {

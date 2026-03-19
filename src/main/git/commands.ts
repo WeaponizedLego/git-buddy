@@ -1,5 +1,95 @@
+import { writeFile, access, constants } from 'fs/promises'
+import { join } from 'path'
 import { runGit } from './executor'
 import { AppError } from '../utils/errors'
+
+const DEFAULT_GITIGNORE = `# ── Dependencies ──────────────────────────────────────
+node_modules/
+vendor/
+.bundle/
+bower_components/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+
+# ── Environment & Secrets ──────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ── OS Files ───────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Editor & IDE ───────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ── Build Outputs ──────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Java / Kotlin ──────────────────────────────────────
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+target/
+
+# ── C / C++ ────────────────────────────────────────────
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+
+# ── Coverage & Testing ─────────────────────────────────
+coverage/
+.nyc_output/
+.pytest_cache/
+
+# ── Misc ───────────────────────────────────────────────
+*.bak
+*.tmp
+*.orig
+`
 
 export interface CommitInfo {
   sha: string
@@ -23,8 +113,19 @@ export async function checkIsRepo(cwd: string): Promise<boolean> {
   }
 }
 
+async function createDefaultGitignore(cwd: string): Promise<void> {
+  const gitignorePath = join(cwd, '.gitignore')
+  try {
+    await access(gitignorePath, constants.F_OK)
+    return // already exists — do not overwrite
+  } catch {
+    await writeFile(gitignorePath, DEFAULT_GITIGNORE, 'utf-8')
+  }
+}
+
 export async function initRepo(cwd: string): Promise<void> {
   await runGit(['init', '-b', 'main'], cwd)
+  await createDefaultGitignore(cwd)
 }
 
 export async function getStatus(cwd: string): Promise<GitStatus> {

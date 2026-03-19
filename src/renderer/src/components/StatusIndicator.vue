@@ -12,7 +12,7 @@ const store = useProjectStore()
     </template>
     <template v-else>
       <span class="status-dot dot-saved"></span>
-      All saved! 🐣
+      All saved! <img src="../assets/logo.png" class="logo-inline" alt="" />
     </template>
   </div>
 </template>
@@ -44,6 +44,14 @@ const store = useProjectStore()
 
 .dot-saved {
   background: var(--color-success);
+}
+
+.logo-inline {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 
 .dot-unsaved {
