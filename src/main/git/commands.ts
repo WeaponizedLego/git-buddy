@@ -104,6 +104,13 @@ export interface GitStatus {
   files: string[]
 }
 
+export interface WorktreeInfo {
+  path: string
+  branch: string
+  modifiedFiles: string[]
+  commitsAhead: number
+}
+
 export async function checkIsRepo(cwd: string): Promise<boolean> {
   try {
     await runGit(['rev-parse', '--is-inside-work-tree'], cwd)
@@ -205,6 +212,67 @@ export async function saveSnapshot(
   }
 
   return { pushed: false }
+}
+
+export async function getLinkedWorktrees(cwd: string): Promise<WorktreeInfo[]> {
+  try {
+    const output = await runGit(['worktree', 'list', '--porcelain'], cwd)
+    const blocks = output.split('\n\n').filter(Boolean)
+    blocks.shift() // remove main worktree
+
+    const worktrees: WorktreeInfo[] = []
+    for (const block of blocks) {
+      const lines = block.split('\n')
+      const path = lines.find(l => l.startsWith('worktree '))?.slice('worktree '.length).trim() ?? ''
+      const branch = lines.find(l => l.startsWith('branch '))?.slice('branch refs/heads/'.length).trim() ?? ''
+      if (!path || !branch) continue
+
+      const status = await getStatus(path).catch(() => ({ modifiedCount: 0, files: [] }))
+      let commitsAhead = 0
+      try {
+        const aheadOut = await runGit(['log', `main..${branch}`, '--format=%H'], cwd)
+        commitsAhead = aheadOut.split('\n').filter(Boolean).length
+      } catch { /* branch may not exist on main yet */ }
+
+      if (status.files.length > 0 || commitsAhead > 0) {
+        worktrees.push({ path, branch, modifiedFiles: status.files, commitsAhead })
+      }
+    }
+    return worktrees
+  } catch {
+    return []
+  }
+}
+
+export async function saveWorktreeToMain(
+  cwd: string,
+  worktree: WorktreeInfo,
+  snapshotMessage?: string
+): Promise<{ pushed: boolean }> {
+  // 1. Commit uncommitted changes in the worktree if needed
+  if (worktree.modifiedFiles.length > 0 && snapshotMessage) {
+    await runGit(['add', '-A'], worktree.path)
+    await runGit(['commit', '-m', snapshotMessage], worktree.path)
+  }
+
+  // 2. Merge into main
+  await runGit(['merge', worktree.branch, '--no-edit'], cwd)
+
+  // 3. Clean up the worktree
+  try { await runGit(['worktree', 'remove', '--force', worktree.path], cwd) } catch { /* ok */ }
+  await runGit(['worktree', 'prune'], cwd)
+
+  // 4. Try push
+  const remote = await getRemoteUrl(cwd)
+  if (remote) {
+    try { await runGit(['push', 'origin', 'main'], cwd); return { pushed: true } } catch { /* ok */ }
+  }
+  return { pushed: false }
+}
+
+export async function discardWorktree(cwd: string, worktreePath: string): Promise<void> {
+  try { await runGit(['worktree', 'remove', '--force', worktreePath], cwd) } catch { /* ok */ }
+  await runGit(['worktree', 'prune'], cwd)
 }
 
 export async function goBackTo(cwd: string, targetSha: string): Promise<void> {

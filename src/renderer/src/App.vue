@@ -7,6 +7,7 @@ import Timeline from './components/Timeline.vue'
 import StatusIndicator from './components/StatusIndicator.vue'
 import ErrorToast from './components/ErrorToast.vue'
 import UpdateBanner from './components/UpdateBanner.vue'
+import WorktreePanel from './components/WorktreePanel.vue'
 
 const store = useProjectStore()
 const gitInstalled = ref(true)
@@ -48,6 +49,14 @@ async function handleSnooze(): Promise<void> {
       :version="updateInfo.version"
       :release-url="updateInfo.releaseUrl"
       @snooze="handleSnooze"
+    />
+
+    <WorktreePanel
+      v-if="store.linkedWorktrees.length > 0 && store.isRepo"
+      :worktrees="store.linkedWorktrees"
+      :is-loading="store.isLoading"
+      @save="(wt, msg) => store.saveWorktreeToMain(wt, msg)"
+      @discard="(wt) => store.discardWorktree(wt.path)"
     />
 
     <main class="app-main">

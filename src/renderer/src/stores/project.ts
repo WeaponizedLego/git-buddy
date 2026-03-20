@@ -14,6 +14,13 @@ export interface GitStatus {
   files: string[]
 }
 
+export interface WorktreeInfo {
+  path: string
+  branch: string
+  modifiedFiles: string[]
+  commitsAhead: number
+}
+
 export const useProjectStore = defineStore('project', () => {
   const projectPath = ref<string | null>(null)
   const isRepo = ref(false)
@@ -22,6 +29,7 @@ export const useProjectStore = defineStore('project', () => {
   const commits = ref<CommitInfo[]>([])
   const isLoading = ref(false)
   const error = ref<{ message: string; hint?: string } | null>(null)
+  const linkedWorktrees = ref<WorktreeInfo[]>([])
 
   const hasChanges = computed(() => status.value.modifiedCount > 0)
 
@@ -50,14 +58,16 @@ export const useProjectStore = defineStore('project', () => {
     if (!projectPath.value) return
 
     try {
-      const [statusResult, logResult, remoteResult] = await Promise.all([
+      const [statusResult, logResult, remoteResult, worktrees] = await Promise.all([
         window.gitBuddy.getStatus(projectPath.value),
         window.gitBuddy.getLog(projectPath.value),
-        window.gitBuddy.getRemoteUrl(projectPath.value)
+        window.gitBuddy.getRemoteUrl(projectPath.value),
+        window.gitBuddy.getWorktrees(projectPath.value)
       ])
       status.value = statusResult
       commits.value = logResult
       hasRemote.value = remoteResult !== null
+      linkedWorktrees.value = worktrees
     } catch (err: unknown) {
       const e = err as { friendlyMessage?: string; recoveryHint?: string }
       showError(
@@ -110,6 +120,37 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function saveWorktreeToMain(worktree: WorktreeInfo, message?: string): Promise<void> {
+    if (!projectPath.value) return
+    isLoading.value = true
+    try {
+      const result = await window.gitBuddy.saveWorktreeToMain(projectPath.value, worktree, message)
+      await refresh()
+      if (!result.pushed && hasRemote.value) {
+        showError("Saved locally, but couldn't push online.", 'Check your internet connection.')
+      }
+    } catch (err: unknown) {
+      const e = err as { friendlyMessage?: string; recoveryHint?: string }
+      showError(e.friendlyMessage ?? "Couldn't save the AI workspace.", e.recoveryHint)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function discardWorktree(worktreePath: string): Promise<void> {
+    if (!projectPath.value) return
+    isLoading.value = true
+    try {
+      await window.gitBuddy.discardWorktree(projectPath.value, worktreePath)
+      await refresh()
+    } catch (err: unknown) {
+      const e = err as { friendlyMessage?: string; recoveryHint?: string }
+      showError(e.friendlyMessage ?? "Couldn't discard the AI workspace.", e.recoveryHint)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   function showError(message: string, hint?: string): void {
     error.value = { message, hint }
   }
@@ -142,6 +183,7 @@ export const useProjectStore = defineStore('project', () => {
     status.value = { modifiedCount: 0, files: [] }
     commits.value = []
     error.value = null
+    linkedWorktrees.value = []
     window.gitBuddy.saveLastProject(null)
   }
 
@@ -154,12 +196,15 @@ export const useProjectStore = defineStore('project', () => {
     isLoading,
     error,
     hasChanges,
+    linkedWorktrees,
     selectFolder,
     initializeRepo,
     loadLastProject,
     refresh,
     saveSnapshot,
     goBackTo,
+    saveWorktreeToMain,
+    discardWorktree,
     showError,
     clearError,
     closeProject

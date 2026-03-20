@@ -18,6 +18,13 @@ export interface GitStatus {
   files: string[]
 }
 
+export interface WorktreeInfo {
+  path: string
+  branch: string
+  modifiedFiles: string[]
+  commitsAhead: number
+}
+
 const api = {
   selectFolder: (): Promise<string | null> =>
     ipcRenderer.invoke('git:select-folder'),
@@ -59,7 +66,16 @@ const api = {
     ipcRenderer.invoke('app:snooze-update', version),
 
   openRelease: (url: string): Promise<void> =>
-    ipcRenderer.invoke('app:open-release', url)
+    ipcRenderer.invoke('app:open-release', url),
+
+  getWorktrees: (path: string): Promise<WorktreeInfo[]> =>
+    ipcRenderer.invoke('git:worktrees', path),
+
+  saveWorktreeToMain: (path: string, worktree: WorktreeInfo, message?: string): Promise<{ pushed: boolean }> =>
+    ipcRenderer.invoke('git:worktree-save', path, worktree, message),
+
+  discardWorktree: (path: string, worktreePath: string): Promise<void> =>
+    ipcRenderer.invoke('git:worktree-discard', path, worktreePath)
 }
 
 contextBridge.exposeInMainWorld('gitBuddy', api)

@@ -7,7 +7,11 @@ import {
   getLog,
   getRemoteUrl,
   saveSnapshot,
-  goBackTo
+  goBackTo,
+  getLinkedWorktrees,
+  saveWorktreeToMain,
+  discardWorktree,
+  WorktreeInfo
 } from './git/commands'
 import { toFriendlyError, AppError } from './utils/errors'
 import { getLastProjectPath, saveLastProjectPath, saveUpdateSettings, getUpdateSettings } from './settings'
@@ -78,6 +82,18 @@ export function registerIpcHandlers(): void {
       throw new AppError('Pick a snapshot to go back to!', 'Invalid target SHA')
     }
     await goBackTo(path, targetSha)
+  }))
+
+  ipcMain.handle('git:worktrees', wrapHandler(async (_event, path: string) => {
+    return await getLinkedWorktrees(path)
+  }))
+
+  ipcMain.handle('git:worktree-save', wrapHandler(async (_event, path: string, worktree: WorktreeInfo, message?: string) => {
+    return await saveWorktreeToMain(path, worktree, message)
+  }))
+
+  ipcMain.handle('git:worktree-discard', wrapHandler(async (_event, path: string, worktreePath: string) => {
+    await discardWorktree(path, worktreePath)
   }))
 
   ipcMain.handle('settings:get-last-project', () => {
