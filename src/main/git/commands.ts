@@ -275,6 +275,54 @@ export async function discardWorktree(cwd: string, worktreePath: string): Promis
   await runGit(['worktree', 'prune'], cwd)
 }
 
+export async function getCurrentBranch(cwd: string): Promise<string> {
+  return (await runGit(['rev-parse', '--abbrev-ref', 'HEAD'], cwd)).trim()
+}
+
+export async function listBranches(cwd: string): Promise<string[]> {
+  const output = await runGit(['branch', '--format=%(refname:short)'], cwd)
+  return output.split('\n').filter(Boolean)
+}
+
+export async function switchBranch(cwd: string, branch: string): Promise<void> {
+  await runGit(['checkout', branch], cwd)
+}
+
+export async function mergeBranchToMain(cwd: string, sourceBranch: string): Promise<{ pushed: boolean }> {
+  if (sourceBranch === 'main') {
+    throw new AppError("Can't merge main into itself!", 'Source branch is already main')
+  }
+  const status = await getStatus(cwd)
+  if (status.modifiedCount > 0) {
+    throw new AppError(
+      'You have unsaved changes!',
+      `${status.modifiedCount} modified files`,
+      'Save a snapshot first, then merge.'
+    )
+  }
+  await runGit(['checkout', 'main'], cwd)
+  try {
+    await runGit(['merge', sourceBranch], cwd)
+  } catch (err) {
+    try { await runGit(['merge', '--abort'], cwd) } catch { /* ok */ }
+    throw new AppError(
+      'Merge had conflicts.',
+      err instanceof Error ? err.message : String(err),
+      'Resolve the conflicts on your branch first, then try merging again.'
+    )
+  }
+  const remote = await getRemoteUrl(cwd)
+  if (remote) {
+    try { await runGit(['push', 'origin', 'main'], cwd); return { pushed: true } } catch { /* ok */ }
+  }
+  return { pushed: false }
+}
+
+async function isMergeCommit(cwd: string, sha: string): Promise<boolean> {
+  const parents = await runGit(['log', '-1', '--format=%P', sha], cwd)
+  return parents.trim().split(/\s+/).filter(Boolean).length > 1
+}
+
 export async function goBackTo(cwd: string, targetSha: string): Promise<void> {
   // Ensure clean working tree
   const status = await getStatus(cwd)
@@ -307,7 +355,11 @@ export async function goBackTo(cwd: string, targetSha: string): Promise<void> {
   const reversed = [...commitsToRevert].reverse()
   try {
     for (const sha of reversed) {
-      await runGit(['revert', '--no-commit', sha], cwd)
+      const mergeCommit = await isMergeCommit(cwd, sha)
+      const args = mergeCommit
+        ? ['revert', '-m', '1', '--no-commit', sha]
+        : ['revert', '--no-commit', sha]
+      await runGit(args, cwd)
     }
   } catch (err: unknown) {
     // Conflict occurred - abort the revert

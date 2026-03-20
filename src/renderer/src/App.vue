@@ -8,6 +8,8 @@ import StatusIndicator from './components/StatusIndicator.vue'
 import ErrorToast from './components/ErrorToast.vue'
 import UpdateBanner from './components/UpdateBanner.vue'
 import WorktreePanel from './components/WorktreePanel.vue'
+import BranchBanner from './components/BranchBanner.vue'
+import BranchPanel from './components/BranchPanel.vue'
 
 const store = useProjectStore()
 const gitInstalled = ref(true)
@@ -49,6 +51,23 @@ async function handleSnooze(): Promise<void> {
       :version="updateInfo.version"
       :release-url="updateInfo.releaseUrl"
       @snooze="handleSnooze"
+    />
+
+    <BranchBanner
+      v-if="store.isRepo && !store.isOnMainBranch"
+      :branch="store.currentBranch"
+      :is-advanced="store.isAdvancedMode"
+      @toggle="store.toggleAdvancedMode()"
+    />
+
+    <BranchPanel
+      v-if="store.isAdvancedMode"
+      :branches="store.branches"
+      :current-branch="store.currentBranch"
+      :is-loading="store.isLoading"
+      @switch="(b) => store.switchBranch(b)"
+      @merge="store.mergeBranchToMain()"
+      @close="store.toggleAdvancedMode()"
     />
 
     <WorktreePanel

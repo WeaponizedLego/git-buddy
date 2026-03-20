@@ -11,6 +11,10 @@ import {
   getLinkedWorktrees,
   saveWorktreeToMain,
   discardWorktree,
+  getCurrentBranch,
+  listBranches,
+  switchBranch,
+  mergeBranchToMain,
   WorktreeInfo
 } from './git/commands'
 import { toFriendlyError, AppError } from './utils/errors'
@@ -94,6 +98,22 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('git:worktree-discard', wrapHandler(async (_event, path: string, worktreePath: string) => {
     await discardWorktree(path, worktreePath)
+  }))
+
+  ipcMain.handle('git:current-branch', wrapHandler(async (_event, path: string) => {
+    return await getCurrentBranch(path)
+  }))
+
+  ipcMain.handle('git:list-branches', wrapHandler(async (_event, path: string) => {
+    return await listBranches(path)
+  }))
+
+  ipcMain.handle('git:switch-branch', wrapHandler(async (_event, path: string, branch: string) => {
+    await switchBranch(path, branch)
+  }))
+
+  ipcMain.handle('git:merge-to-main', wrapHandler(async (_event, path: string, sourceBranch: string) => {
+    return await mergeBranchToMain(path, sourceBranch)
   }))
 
   ipcMain.handle('settings:get-last-project', () => {
