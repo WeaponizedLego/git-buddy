@@ -18,6 +18,13 @@ export interface GitStatus {
   files: string[]
 }
 
+export interface WorktreeInfo {
+  path: string
+  branch: string
+  modifiedFiles: string[]
+  commitsAhead: number
+}
+
 const api = {
   selectFolder: (): Promise<string | null> =>
     ipcRenderer.invoke('git:select-folder'),
@@ -59,7 +66,28 @@ const api = {
     ipcRenderer.invoke('app:snooze-update', version),
 
   openRelease: (url: string): Promise<void> =>
-    ipcRenderer.invoke('app:open-release', url)
+    ipcRenderer.invoke('app:open-release', url),
+
+  getWorktrees: (path: string): Promise<WorktreeInfo[]> =>
+    ipcRenderer.invoke('git:worktrees', path),
+
+  saveWorktreeToMain: (path: string, worktree: WorktreeInfo, message?: string): Promise<{ pushed: boolean }> =>
+    ipcRenderer.invoke('git:worktree-save', path, worktree, message),
+
+  discardWorktree: (path: string, worktreePath: string): Promise<void> =>
+    ipcRenderer.invoke('git:worktree-discard', path, worktreePath),
+
+  getCurrentBranch: (path: string): Promise<string> =>
+    ipcRenderer.invoke('git:current-branch', path),
+
+  listBranches: (path: string): Promise<string[]> =>
+    ipcRenderer.invoke('git:list-branches', path),
+
+  switchBranch: (path: string, branch: string): Promise<void> =>
+    ipcRenderer.invoke('git:switch-branch', path, branch),
+
+  mergeBranchToMain: (path: string, sourceBranch: string): Promise<{ pushed: boolean }> =>
+    ipcRenderer.invoke('git:merge-to-main', path, sourceBranch)
 }
 
 contextBridge.exposeInMainWorld('gitBuddy', api)

@@ -24,6 +24,13 @@ interface UpdateInfo {
   releaseUrl: string
 }
 
+interface WorktreeInfo {
+  path: string
+  branch: string
+  modifiedFiles: string[]
+  commitsAhead: number
+}
+
 interface GitBuddyApi {
   selectFolder(): Promise<string | null>
   checkRepo(path: string): Promise<boolean>
@@ -39,6 +46,13 @@ interface GitBuddyApi {
   checkForUpdate(): Promise<UpdateInfo | null>
   snoozeUpdate(version: string): Promise<void>
   openRelease(url: string): Promise<void>
+  getWorktrees(path: string): Promise<WorktreeInfo[]>
+  saveWorktreeToMain(path: string, worktree: WorktreeInfo, message?: string): Promise<{ pushed: boolean }>
+  discardWorktree(path: string, worktreePath: string): Promise<void>
+  getCurrentBranch(path: string): Promise<string>
+  listBranches(path: string): Promise<string[]>
+  switchBranch(path: string, branch: string): Promise<void>
+  mergeBranchToMain(path: string, sourceBranch: string): Promise<{ pushed: boolean }>
 }
 
 interface Window {
