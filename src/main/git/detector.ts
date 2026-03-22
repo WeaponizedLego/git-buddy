@@ -1,13 +1,6 @@
-import { execFile } from 'child_process'
-import { promisify } from 'util'
-
-const execFileAsync = promisify(execFile)
+import { exec } from 'dugite'
 
 export async function isGitInstalled(): Promise<{ installed: boolean; version?: string }> {
-  try {
-    const { stdout } = await execFileAsync('git', ['--version'], { timeout: 5000 })
-    return { installed: true, version: stdout.trim() }
-  } catch {
-    return { installed: false }
-  }
+  const result = await exec(['--version'], process.cwd())
+  return { installed: true, version: result.stdout.trim() }
 }
