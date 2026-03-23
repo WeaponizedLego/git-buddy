@@ -12,19 +12,10 @@ import BranchBanner from './components/BranchBanner.vue'
 import BranchPanel from './components/BranchPanel.vue'
 
 const store = useProjectStore()
-const gitInstalled = ref(true)
-const gitVersion = ref('')
 const updateInfo = ref<UpdateInfo | null>(null)
 
 onMounted(async () => {
-  const result = await window.gitBuddy.checkGitInstalled()
-  gitInstalled.value = result.installed
-  gitVersion.value = result.version ?? ''
-
-  if (result.installed) {
-    await store.loadLastProject()
-  }
-
+  await store.loadLastProject()
   updateInfo.value = await window.gitBuddy.checkForUpdate()
 })
 
@@ -79,22 +70,8 @@ async function handleSnooze(): Promise<void> {
     />
 
     <main class="app-main">
-      <!-- Git not installed -->
-      <div v-if="!gitInstalled" class="no-git">
-        <div class="no-git-icon">😢</div>
-        <h2>Git isn't installed yet!</h2>
-        <p>Git Buddy needs Git to work. Don't worry, it's easy to install!</p>
-        <a
-          href="https://git-scm.com/downloads"
-          target="_blank"
-          class="btn btn-primary"
-        >
-          Download Git ↗
-        </a>
-      </div>
-
       <!-- No project selected, or folder not yet set up -->
-      <ProjectSelector v-else-if="!store.projectPath || !store.isRepo" />
+      <ProjectSelector v-if="!store.projectPath || !store.isRepo" />
 
       <!-- Main workspace -->
       <div v-else class="workspace">
@@ -154,30 +131,6 @@ async function handleSnooze(): Promise<void> {
   padding: 24px;
   overflow: hidden;
   min-height: 0;
-}
-
-.no-git {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.no-git-icon {
-  font-size: 64px;
-}
-
-.no-git h2 {
-  color: var(--color-text);
-  margin: 0;
-}
-
-.no-git p {
-  color: var(--color-text-muted);
-  max-width: 360px;
 }
 
 .workspace {
