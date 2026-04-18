@@ -15,6 +15,9 @@ import {
   listBranches,
   switchBranch,
   mergeBranchToMain,
+  fetchRemote,
+  getRemoteAhead,
+  pullRemote,
   WorktreeInfo
 } from './git/commands'
 import { toFriendlyError, AppError } from './utils/errors'
@@ -114,6 +117,18 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('git:merge-to-main', wrapHandler(async (_event, path: string, sourceBranch: string) => {
     return await mergeBranchToMain(path, sourceBranch)
+  }))
+
+  ipcMain.handle('git:fetch-remote', wrapHandler(async (_event, path: string) => {
+    return await fetchRemote(path)
+  }))
+
+  ipcMain.handle('git:remote-ahead', wrapHandler(async (_event, path: string) => {
+    return await getRemoteAhead(path)
+  }))
+
+  ipcMain.handle('git:pull-remote', wrapHandler(async (_event, path: string) => {
+    await pullRemote(path)
   }))
 
   ipcMain.handle('settings:get-last-project', () => {

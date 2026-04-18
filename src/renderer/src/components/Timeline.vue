@@ -10,6 +10,23 @@ const store = useProjectStore()
     <h2 class="panel-title">⏪ Go Back in Time</h2>
     <p class="panel-desc">Click any snapshot to go back to that moment.</p>
 
+    <div v-if="store.remoteAhead > 0" class="remote-banner">
+      <div class="remote-banner-icon">🔔</div>
+      <div class="remote-banner-body">
+        <div class="remote-banner-message">
+          {{ store.remoteAhead === 1 ? '1 new change online' : `${store.remoteAhead} new changes online` }}
+        </div>
+        <div class="remote-banner-hint">Someone pushed to main.</div>
+      </div>
+      <button
+        class="remote-banner-action"
+        :disabled="store.isPulling"
+        @click="store.pullFromRemote()"
+      >
+        {{ store.isPulling ? 'Pulling…' : 'Pull now' }}
+      </button>
+    </div>
+
     <div v-if="store.commits.length === 0" class="empty-state">
       <div class="empty-icon">📷</div>
       <p>No snapshots yet! Save your first one.</p>
@@ -69,6 +86,56 @@ const store = useProjectStore()
   flex: 1;
   overflow-y: auto;
   padding: 4px 0;
+}
+
+.remote-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent, #3b82f6);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.remote-banner-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.remote-banner-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.remote-banner-message {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.remote-banner-hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.remote-banner-action {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-surface);
+  background: var(--color-accent, #3b82f6);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+}
+
+.remote-banner-action:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .timeline-line {
