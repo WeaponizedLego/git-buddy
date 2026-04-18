@@ -87,7 +87,16 @@ const api = {
     ipcRenderer.invoke('git:switch-branch', path, branch),
 
   mergeBranchToMain: (path: string, sourceBranch: string): Promise<{ pushed: boolean }> =>
-    ipcRenderer.invoke('git:merge-to-main', path, sourceBranch)
+    ipcRenderer.invoke('git:merge-to-main', path, sourceBranch),
+
+  fetchRemote: (path: string): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('git:fetch-remote', path),
+
+  getRemoteAhead: (path: string): Promise<number> =>
+    ipcRenderer.invoke('git:remote-ahead', path),
+
+  pullRemote: (path: string): Promise<void> =>
+    ipcRenderer.invoke('git:pull-remote', path)
 }
 
 contextBridge.exposeInMainWorld('gitBuddy', api)

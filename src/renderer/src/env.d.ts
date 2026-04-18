@@ -53,6 +53,9 @@ interface GitBuddyApi {
   listBranches(path: string): Promise<string[]>
   switchBranch(path: string, branch: string): Promise<void>
   mergeBranchToMain(path: string, sourceBranch: string): Promise<{ pushed: boolean }>
+  fetchRemote(path: string): Promise<{ ok: boolean }>
+  getRemoteAhead(path: string): Promise<number>
+  pullRemote(path: string): Promise<void>
 }
 
 interface Window {

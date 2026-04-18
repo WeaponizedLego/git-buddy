@@ -214,6 +214,38 @@ export async function saveSnapshot(
   return { pushed: false }
 }
 
+export async function fetchRemote(cwd: string): Promise<{ ok: boolean }> {
+  try {
+    await runGit(['fetch', 'origin', 'main'], cwd)
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
+export async function getRemoteAhead(cwd: string): Promise<number> {
+  try {
+    const output = await runGit(['rev-list', '--count', 'main..origin/main'], cwd)
+    const n = parseInt(output.trim(), 10)
+    return Number.isFinite(n) ? n : 0
+  } catch {
+    return 0
+  }
+}
+
+export async function pullRemote(cwd: string): Promise<void> {
+  try {
+    await runGit(['pull', '--ff-only', 'origin', 'main'], cwd)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new AppError(
+      "Couldn't pull changes from online.",
+      msg,
+      'Save a snapshot first — your local changes may be blocking a fast-forward pull.'
+    )
+  }
+}
+
 export async function getLinkedWorktrees(cwd: string): Promise<WorktreeInfo[]> {
   try {
     const output = await runGit(['worktree', 'list', '--porcelain'], cwd)

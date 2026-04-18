@@ -35,6 +35,9 @@ export const useProjectStore = defineStore('project', () => {
   const branches = ref<string[]>([])
   const isAdvancedMode = ref(false)
 
+  const remoteAhead = ref(0)
+  const isPulling = ref(false)
+
   const hasChanges = computed(() => status.value.modifiedCount > 0)
   const isOnMainBranch = computed(() => currentBranch.value === 'main')
 
@@ -200,6 +203,38 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function checkRemote(): Promise<void> {
+    if (!projectPath.value || !hasRemote.value || !isOnMainBranch.value) return
+    try {
+      const result = await window.gitBuddy.fetchRemote(projectPath.value)
+      if (!result.ok) return
+      const ahead = await window.gitBuddy.getRemoteAhead(projectPath.value)
+      if (ahead !== remoteAhead.value) {
+        remoteAhead.value = ahead
+      }
+    } catch {
+      // offline or other transient — stay silent
+    }
+  }
+
+  async function pullFromRemote(): Promise<void> {
+    if (!projectPath.value || isPulling.value) return
+    isPulling.value = true
+    try {
+      await window.gitBuddy.pullRemote(projectPath.value)
+      remoteAhead.value = 0
+      await refresh()
+    } catch (err: unknown) {
+      const e = err as { friendlyMessage?: string; recoveryHint?: string }
+      showError(
+        e.friendlyMessage ?? "Couldn't pull changes from online.",
+        e.recoveryHint
+      )
+    } finally {
+      isPulling.value = false
+    }
+  }
+
   function showError(message: string, hint?: string): void {
     error.value = { message, hint }
   }
@@ -236,6 +271,7 @@ export const useProjectStore = defineStore('project', () => {
     currentBranch.value = 'main'
     branches.value = []
     isAdvancedMode.value = false
+    remoteAhead.value = 0
     window.gitBuddy.saveLastProject(null)
   }
 
@@ -253,6 +289,8 @@ export const useProjectStore = defineStore('project', () => {
     branches,
     isAdvancedMode,
     isOnMainBranch,
+    remoteAhead,
+    isPulling,
     selectFolder,
     initializeRepo,
     loadLastProject,
@@ -264,6 +302,8 @@ export const useProjectStore = defineStore('project', () => {
     toggleAdvancedMode,
     switchBranch,
     mergeBranchToMain,
+    checkRemote,
+    pullFromRemote,
     showError,
     clearError,
     closeProject
